@@ -1,6 +1,8 @@
 const express = require('express');
 const db = require('./src/config/database');
 const userRoutes = require('./src/routes/userRoutes');
+const barangRoutes = require('./src/routes/barangRoutes');
+
 require('dotenv').config();
 
 const app = express();
@@ -13,6 +15,7 @@ db.sync().then(() => {
 });
 
 app.use('/api/users', userRoutes);
+app.use('/api/barang', barangRoutes);
 
 app.get('/', (req, res) => {
   res.send('Server is up and running!');

@@ -30,7 +30,12 @@ const User = sequelize.define('User', {
   saldo_penjualan: {
     type: DataTypes.DECIMAL(10, 2),
     defaultValue: 0.00
-  }
+  },
+  role: {
+    type: DataTypes.ENUM('pengguna', 'pegawai', 'penitip', 'admin'),
+    allowNull: false,
+    defaultValue: 'pengguna'
+  },
 }, {
     timestamps: false,
 });
