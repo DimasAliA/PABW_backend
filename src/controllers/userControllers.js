@@ -56,3 +56,55 @@ exports.login = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+
+exports.getUserProfile = async (req, res) => {
+    try {
+        const userId = req.user.userId;
+        const user = await User.findByPk(userId);
+        
+        if (!user) {
+            return res.status(404).json({ message: "User Tidak Ditemukan" });
+        }
+        
+        res.status(200).json({
+            id: user.id,
+            nama: user.nama,
+            email: user.email,
+            status_keanggotaan: user.status_keanggotaan,
+            saldo_iuran_wajib: user.saldo_iuran_wajib,
+            saldo_iuran_sukarela: user.saldo_iuran_sukarela,
+            saldo_penjualan: user.saldo_penjualan,
+            role: user.role
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+exports.updateUserProfile = async (req, res) => {
+    try {
+        const userId = req.user.userId;
+        const { nama, email, password } = req.body;
+
+        const user = await User.findByPk(userId);
+        if (!user) {
+            return res.status(404).json({ message: "User Tidak Ditemukan" });
+        }
+
+        user.nama = nama || user.nama;
+        user.email = email || user.email;
+
+        if (password) {
+            const hashedPassword = await bcrypt.hash(password, 10);
+            user.password_hash = hashedPassword;
+        }
+
+        await user.save();
+
+        res.status(200).json({ message: "Profile updated successfully." });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+

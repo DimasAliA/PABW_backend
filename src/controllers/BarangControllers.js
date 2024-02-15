@@ -6,10 +6,10 @@ exports.tambahBarang = async (req, res) => {
         const { nama, harga, stok, kategori_id } = req.body;
         const user_id = req.user.userId;
 
-        if(req.user.role !== 'pengguna' && req.user.role !== 'penitip') {
-            console.log(req.user.role)
-            return res.status(403).json({ message: 'Anda tidak memiliki izin untuk menambah barang.' });
-        }
+        // if(req.user.role !== 'pengguna' && req.user.role !== 'penitip') {
+        //     console.log(req.user.role)
+        //     return res.status(403).json({ message: 'Anda tidak memiliki izin untuk menambah barang.' });
+        // }
 
         const barangBaru = await Barang.create({ user_id, nama, harga, stok, kategori_id, status: stok > 0 ? 'stok tersedia' : 'stok kosong' });
         res.status(201).json(barangBaru);
@@ -38,9 +38,9 @@ exports.updateBarang = async (req, res) => {
             return res.status(404).json({ message: 'Barang tidak ditemukan.' });
         }
 
-        if (barang.user_id !== user_id && req.user.role !== 'admin') {
-            return res.status(403).json({ message: 'Anda tidak memiliki izin untuk mengupdate barang ini.' });
-        }
+        // if (barang.user_id !== user_id && req.user.role !== 'admin') {
+        //     return res.status(403).json({ message: 'Anda tidak memiliki izin untuk mengupdate barang ini.' });
+        // }
 
         barang.nama = nama;
         barang.harga = harga;
@@ -65,9 +65,9 @@ exports.hapusBarang = async (req, res) => {
             return res.status(404).json({ message: 'Barang tidak ditemukan.' });
         }
 
-        if (barang.user_id !== user_id && req.user.role !== 'admin') {
-            return res.status(403).json({ message: 'Anda tidak memiliki izin untuk menghapus barang ini.' });
-        }
+        // if (barang.user_id !== user_id && req.user.role !== 'admin') {
+        //     return res.status(403).json({ message: 'Anda tidak memiliki izin untuk menghapus barang ini.' });
+        // }
 
         await barang.destroy();
         // res.status(204).send();
