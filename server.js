@@ -3,6 +3,7 @@ const db = require('./src/config/database');
 const userRoutes = require('./src/routes/userRoutes');
 const barangRoutes = require('./src/routes/barangRoutes');
 const transaksiRoutes = require('./src/routes/transaksiRoutes');
+const keranjang = require('./src/routes/keranjangRoutes');
 
 require('dotenv').config();
 
@@ -18,6 +19,7 @@ db.sync().then(() => {
 app.use('/api/users', userRoutes);
 app.use('/api/barang', barangRoutes);
 app.use('/api/transaksi', transaksiRoutes);
+app.use('/api/keranjang', keranjang);
 
 app.get('/', (req, res) => {
   res.send('Server is up and running!');

@@ -1,32 +1,43 @@
 const Transaksi = require('../models/transaksi');
 const Barang = require('../models/barang');
+const Keranjang = require('../models/keranjang');
 
 exports.buatTransaksi = async (req, res) => {
-    const { barang_id, jumlah, metode_pengiriman, alamat_pengiriman, lokasi_pengambilan, batas_waktu_pengambilan } = req.body;
-
     try {
-        const barang = await Barang.findByPk(barang_id);
+        const { metode_pengiriman, alamat_pengiriman, lokasi_pengambilan, batas_waktu_pengambilan } = req.body;
+        const userId = req.user.userId;
+        const keranjangItems = await Keranjang.findAll({ where: { user_id: userId } });
 
-        if (!barang || barang.stok < jumlah) {
-            return res.status(400).json({ message: 'Stok barang tidak mencukupi' });
+        if (keranjangItems.length === 0) {
+            return res.status(400).json({ message: 'Keranjang belanja kosong' });
         }
 
-        barang.stok -= jumlah;
-        await barang.save();
+        for (const item of keranjangItems) {
+            const barang = await Barang.findByPk(item.barang_id);
 
-        const transaksi = await Transaksi.create({
-            user_id: req.user.userId,
-            barang_id,
-            jumlah,
-            total_harga: barang.harga * jumlah,
-            status: 'menunggu pegawai',
-            metode_pengiriman,
-            alamat_pengiriman,
-            lokasi_pengambilan,
-            batas_waktu_pengambilan
-        });
+            if (!barang || barang.stok < item.jumlah) {
+                return res.status(400).json({ message: 'Stok barang tidak mencukupi untuk barang dengan id: ' + item.barang_id });
+            }
 
-        res.status(201).json(transaksi);
+            barang.stok -= item.jumlah;
+            await barang.save();
+
+            await Transaksi.create({
+                user_id: userId,
+                barang_id: item.barang_id,
+                jumlah: item.jumlah,
+                total_harga: barang.harga * item.jumlah,
+                status_pengiriman: 'menunggu pegawai',
+                metode_pengiriman,
+                alamat_pengiriman,
+                lokasi_pengambilan,
+                batas_waktu_pengambilan
+            });
+
+            await item.destroy();
+        }
+
+        res.status(201).json({ message: 'Transaksi berhasil' });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
