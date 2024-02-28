@@ -1,4 +1,5 @@
-const Keranjang = require('../models/keranjang');
+const db = require('../models/index');
+const Keranjang = db.Keranjang;
 
 exports.tambahItemKeKeranjang = async (req, res) => {
     const barang_id = req.body.barang_id;

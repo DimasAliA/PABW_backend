@@ -1,42 +1,42 @@
-const { Model, DataTypes } = require('sequelize');
-const sequelize = require('../config/database');
+'use strict';
+const { Model } = require('sequelize');
 
-class Keranjang extends Model {}
-
-Keranjang.init({
-  id: {
-    type: DataTypes.INTEGER,
-    autoIncrement: true,
-    primaryKey: true
-  },
-  user_id: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    references: {
-      model: 'users',
-      key: 'id'
-    }
-  },
-  barang_id: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    references: {
-      model: 'barang',
-      key: 'id'
-    }
-  },
-  jumlah: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    validate: {
-      min: 1
+module.exports = (sequelize, DataTypes) => {
+  class Keranjang extends Model {
+    static associate(models) {
+      Keranjang.belongsTo(models.User, { foreignKey: 'user_id' });
+      Keranjang.belongsTo(models.Barang, { foreignKey: 'barang_id' });
     }
   }
-}, {
-  sequelize,
-  modelName: 'Keranjang',
-  tableName: 'keranjang',
-  timestamps: false
-});
-
-module.exports = Keranjang;
+  Keranjang.init({
+    userId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: 'User',
+        key: 'id',
+      }
+    },
+    barangId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: 'Barang',
+        key: 'id',
+      }
+    },
+    jumlah: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      validate: {
+        min: 1
+      }
+    }
+  }, {
+    sequelize,
+    modelName: 'Keranjang',
+    tableName: 'keranjang',
+    timestamps: false
+  });
+  return Keranjang;
+};

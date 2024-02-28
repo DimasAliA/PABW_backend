@@ -1,43 +1,27 @@
-const { DataTypes } = require('sequelize');
-const sequelize = require('../config/database');
+'use strict';
+const { Model } = require('sequelize');
 
-const User = sequelize.define('User', {
-  nama: {
-    type: DataTypes.STRING,
-    allowNull: false
-  },
-  email: {
-    type: DataTypes.STRING,
-    allowNull: false,
-    unique: true
-  },
-  password_hash: {
-    type: DataTypes.STRING,
-    allowNull: false
-  },
-  status_keanggotaan: {
-    type: DataTypes.ENUM('aktif', 'tidak aktif', 'bukan anggota'),
-    allowNull: false
-  },
-  saldo_iuran_wajib: {
-    type: DataTypes.DECIMAL(10, 2),
-    defaultValue: 0.00
-  },
-  saldo_iuran_sukarela: {
-    type: DataTypes.DECIMAL(10, 2),
-    defaultValue: 0.00
-  },
-  saldo_penjualan: {
-    type: DataTypes.DECIMAL(10, 2),
-    defaultValue: 0.00
-  },
-  role: {
-    type: DataTypes.ENUM('pengguna', 'pegawai', 'penitip', 'admin'),
-    allowNull: false,
-    defaultValue: 'pengguna'
-  },
-}, {
-    timestamps: false,
-});
-
-module.exports = User;
+module.exports = (sequelize, DataTypes) => {
+  class User extends Model {
+    static associate(models) {
+      User.hasMany(models.Transaksi, { foreignKey: 'user_id' });
+      User.hasMany(models.Keranjang, { foreignKey: 'user_id' });
+    }
+  }
+  User.init({
+    nama: DataTypes.STRING,
+    email: DataTypes.STRING,
+    password_hash: DataTypes.STRING,
+    status_keanggotaan: DataTypes.ENUM('aktif', 'tidak aktif', 'bukan anggota'),
+    saldo_iuran_wajib: DataTypes.DECIMAL(10, 2),
+    saldo_iuran_sukarela: DataTypes.DECIMAL(10, 2),
+    saldo_penjualan: DataTypes.DECIMAL(10, 2),
+    role: DataTypes.ENUM('pengguna', 'pegawai', 'penitip', 'admin'),
+  }, {
+    sequelize,
+    modelName: 'User',
+    tableName: 'users',
+    timestamps: false
+  });
+  return User;
+};

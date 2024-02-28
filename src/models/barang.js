@@ -1,47 +1,23 @@
-const { DataTypes } = require('sequelize');
-const sequelize = require('../config/database');
+'use strict';
+const { Model } = require('sequelize');
 
-const Barang = sequelize.define('Barang', {
-  nama: {
-    type: DataTypes.STRING,
-    allowNull: false
-  },
-  harga: {
-    type: DataTypes.DECIMAL(10, 2),
-    allowNull: false
-  },
-  stok: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    defaultValue: 0,
-    validate: {
-      min: 0
-    }
-  },
-  status: {
-    type: DataTypes.ENUM('stok kosong', 'stok tersedia'),
-    allowNull: false,
-    defaultValue: 'stok kosong'
-  },
-  kategori_id: {
-    type: DataTypes.INTEGER,
-    allowNull: true,
-    references: {
-      model: 'kategori',
-      key: 'id'
-    }
-  },
-  user_id: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    references: {
-      model: 'users',
-      key: 'id'
+module.exports = (sequelize, DataTypes) => {
+  class Barang extends Model {
+    static associate(models) {
+      Barang.belongsTo(models.Kategori, { foreignKey: 'kategori_id' });
     }
   }
-}, {
-  timestamps: false,
-  tableName: 'barang'
-});
-
-module.exports = Barang;
+  Barang.init({
+    nama: DataTypes.STRING,
+    harga: DataTypes.DECIMAL(10, 2),
+    stok: DataTypes.INTEGER,
+    status: DataTypes.STRING,
+    kategori_id: DataTypes.INTEGER,
+  }, {
+    sequelize,
+    modelName: 'Barang',
+    tableName: 'barang',
+    timestamps: false,
+  });
+  return Barang;
+};

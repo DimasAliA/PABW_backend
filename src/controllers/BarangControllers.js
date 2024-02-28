@@ -1,5 +1,6 @@
-const Barang = require('../models/barang');
-const User = require('../models/user');
+const db = require('../models/index');
+const Barang = db.Barang;
+const Kategori = db.Kategori;
 
 exports.tambahBarang = async (req, res) => {
     try {
@@ -14,10 +15,59 @@ exports.tambahBarang = async (req, res) => {
 
 exports.getBarang = async (req, res) => {
     try {
-        const barang = await Barang.findAll();
+        let sortQuery = [['nama', 'ASC']];
+        if (req.query.sort) {
+            switch (req.query.sort) {
+                case 'terbaru':
+                    sortQuery = [['createdAt', 'DESC']];
+                    break;
+                case 'harga':
+                    sortQuery = [['harga', req.query.order || 'ASC']];
+                    break;
+                case 'kategori':
+                    sortQuery = [[{ model: Kategori, as: 'kategori' }, 'nama', req.query.order || 'ASC']];
+                    break;
+            }
+        }
+
+        const barang = await Barang.findAll({
+            include: [Kategori],
+            order: sortQuery
+        });
+
         res.json(barang);
     } catch (error) {
         res.status(500).json({ error: error.message });
+    }
+};
+
+exports.getBarangPenjual = async (req, res) => {
+    try {
+        const user_id = req.user.userId;
+
+        const barangPenjual = await Barang.findAll({
+            where: { user_id: user_id },
+            include: [{
+                model: Kategori,
+            }]
+        });
+
+        if (!barangPenjual.length) {
+            return res.status(404).json({ message: "Tidak ada barang yang ditemukan." });
+        }
+
+        const barangDijual = barangPenjual.map(item => {
+            return {
+                id: item.id,
+                nama: item.nama,
+                stok: item.stok,
+                kategori: item.Kategori ? item.Kategori.nama : null
+            };
+        });
+
+        res.status(200).json(barangDijual);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
     }
 };
 

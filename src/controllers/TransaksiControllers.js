@@ -1,6 +1,7 @@
-const Transaksi = require('../models/transaksi');
-const Barang = require('../models/barang');
-const Keranjang = require('../models/keranjang');
+const db = require('../models/index');
+const Transaksi = db.Transaksi;
+const Barang = db.barang;
+const Keranjang = db.Keranjang;
 
 exports.buatTransaksi = async (req, res) => {
     try {
